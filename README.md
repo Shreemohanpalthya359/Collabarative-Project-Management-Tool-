@@ -112,7 +112,7 @@ Follow these simple steps to get a local development copy up and running!
 2. Complete the registration via the **Sign Up** page.
 3. Access your **Dashboard** and click `+ New Project`.
 4. Link a GitHub repository (e.g., `facebook/react`) to track remote commits.
-5. Create tasks and manage them on your **Kanban Board** by dragging cards.
+5. Create tasks and manage them on your **Project Task Board** by dragging cards.
 6. Check your **Analytics** tab for high-level project visibility.
 
 ---
