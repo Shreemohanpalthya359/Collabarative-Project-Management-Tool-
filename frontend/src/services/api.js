@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5001/api',
+    baseURL: '/api',
 });
 
 api.interceptors.request.use((config) => {
@@ -30,3 +30,10 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+export const labelsApi = {
+    getProjectLabels: (projectId) => api.get(`/projects/${projectId}/labels`),
+    createProjectLabel: (projectId, data) => api.post(`/projects/${projectId}/labels`, data),
+    assignLabelToTask: (taskId, labelId) => api.post(`/tasks/${taskId}/labels`, { label_id: labelId }),
+    removeLabelFromTask: (taskId, labelId) => api.delete(`/tasks/${taskId}/labels/${labelId}`),
+};

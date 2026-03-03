@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { UserPlus, Lock, User, Target } from 'lucide-react';
 import api from '../services/api';
 
@@ -10,12 +10,18 @@ const Register = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const inviteProjectId = searchParams.get('invite');
 
     const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/auth/register', { username, password });
+            const payload = { username, password };
+            if (inviteProjectId) {
+                payload.invite_project_id = parseInt(inviteProjectId);
+            }
+            await api.post('/auth/register', payload);
             setSuccess('Registration successful! Redirecting to sign in...');
             setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
@@ -40,10 +46,12 @@ const Register = () => {
                         </div>
                     </div>
                     <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-indigo-400 to-purple-400 mb-6 font-['Outfit']">
-                        Join GitManager
+                        {inviteProjectId ? "You've been invited!" : "Join GitManager"}
                     </h1>
                     <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                        Create your workspace to orchestrate tasks effectively and track your GitHub repositories natively in one place.
+                        {inviteProjectId
+                            ? "Create an account to join the project workspace and collaborate with your team."
+                            : "Create your workspace to orchestrate tasks effectively and track your GitHub repositories natively in one place."}
                     </p>
                 </div>
             </div>
@@ -54,7 +62,9 @@ const Register = () => {
 
                     <div className="text-center mb-10">
                         <h2 className="text-4xl font-bold text-white mb-2 font-['Outfit']">Create Account</h2>
-                        <p className="text-gray-400">Set up your workspace in seconds.</p>
+                        <p className="text-gray-400">
+                            {inviteProjectId ? "Sign up to accept your invitation." : "Set up your workspace in seconds."}
+                        </p>
                     </div>
 
                     {error && (

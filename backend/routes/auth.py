@@ -4,7 +4,7 @@ from functools import wraps
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
-from models import db, User
+from models import db, User, ProjectMember, Project, ActivityLog
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -17,6 +17,10 @@ def token_required(f):
             parts = request.headers['Authorization'].split(" ")
             if len(parts) == 2:
                 token = parts[1]
+
+        # Also accept token as a query param (needed for browser tab downloads)
+        if not token:
+            token = request.args.get('token')
 
         if not token:
             return jsonify({'message': 'Token is missing!'}), 401
@@ -44,6 +48,30 @@ def register():
     new_user = User(username=data['username'], password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
+
+    invite_project_id = data.get('invite_project_id')
+    if invite_project_id:
+        try:
+            # Check if project exists
+            project = Project.query.get(invite_project_id)
+            if project:
+                # Add as member
+                new_member = ProjectMember(project_id=project.id, user_id=new_user.id, role='member')
+                db.session.add(new_member)
+                
+                # Activity log
+                log = ActivityLog(
+                    project_id=project.id,
+                    user_id=new_user.id, # New user added themselves via invite
+                    action_type='member_joined',
+                    description=f"{new_user.username} joined the project via invite link"
+                )
+                db.session.add(log)
+                db.session.commit()
+        except Exception as e:
+            # We still want to return success for registration even if invite failed
+            print(f"Failed to process project invite: {e}")
+
     return jsonify({'message': 'Registered successfully'})
 
 @auth_bp.route('/login', methods=['POST'])
