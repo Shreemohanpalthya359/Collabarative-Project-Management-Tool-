@@ -16,6 +16,11 @@ const PrivateRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" />;
 };
 
+const AuthRoute = () => {
+  const token = localStorage.getItem('token');
+  return token ? <Navigate to="/dashboard" /> : <Landing />;
+};
+
 function App() {
   return (
     <Router>
@@ -26,10 +31,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/home" element={<Landing />} />
           <Route path="/recycle-bin" element={<PrivateRoute><RecycleBin /></PrivateRoute>} />
-          <Route
-            path="/"
-            element={localStorage.getItem('token') ? <Navigate to="/dashboard" /> : <Landing />}
-          />
+          <Route path="/" element={<AuthRoute />} />
           <Route
             path="/dashboard"
             element={
